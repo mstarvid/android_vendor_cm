@@ -133,16 +133,12 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     VoicePlus \
     Basic \
-    libemoji \
-    Terminal
+    libemoji 
 
 # Custom CM packages
 PRODUCT_PACKAGES += \
     Launcher3 \
-    Trebuchet \
-    AudioFX \
     CMWallpapers \
-    CMFileManager \
     Eleven \
     LockClock \
     CMUpdater \
