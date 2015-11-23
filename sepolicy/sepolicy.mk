@@ -17,10 +17,12 @@ BOARD_SEPOLICY_UNION += \
     app.te \
     auditd.te \
     bootanim.te \
+    bootchart.te \
     drmserver.te \
     healthd.te \
     hostapd.te \
     installd.te \
+    livedisplay.te \
     mediaserver.te \
     netd.te \
     property.te \

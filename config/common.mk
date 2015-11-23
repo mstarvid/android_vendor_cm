@@ -63,8 +63,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.build.selinux=1
 
+ifneq ($(TARGET_BUILD_VARIANT),user)
 # Thank you, please drive thru!
 PRODUCT_PROPERTY_OVERRIDES += persist.sys.dun.override=0
+endif
 
 ifneq ($(TARGET_BUILD_VARIANT),eng)
 # Enable ADB authentication
@@ -108,6 +110,10 @@ PRODUCT_COPY_FILES +=  \
     vendor/cm/prebuilt/common/media/LMprec_508.emd:system/media/LMprec_508.emd \
     vendor/cm/prebuilt/common/media/PFFprec_600.emd:system/media/PFFprec_600.emd
 
+# Copy over added mimetype supported in libcore.net.MimeUtils
+PRODUCT_COPY_FILES += \
+    vendor/cm/prebuilt/common/lib/content-types.properties:system/lib/content-types.properties
+
 # Enable SIP+VoIP on all targets
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml
@@ -144,7 +150,8 @@ PRODUCT_PACKAGES += \
     CMUpdater \
     CMAccount \
     CMHome \
-    CyanogenSetupWizard
+    CyanogenSetupWizard \
+    CMSettingsProvider
 
 # CM Platform Library
 PRODUCT_PACKAGES += \
@@ -168,9 +175,6 @@ PRODUCT_PACKAGES += \
     htop \
     powertop \
     lsof \
-    mount.exfat \
-    fsck.exfat \
-    mkfs.exfat \
     mkfs.f2fs \
     fsck.f2fs \
     fibmap.f2fs \
@@ -181,6 +185,15 @@ PRODUCT_PACKAGES += \
     oprofiled \
     sqlite3 \
     strace
+
+WITH_EXFAT ?= true
+ifeq ($(WITH_EXFAT),true)
+TARGET_USES_EXFAT := true
+PRODUCT_PACKAGES += \
+    mount.exfat \
+    fsck.exfat \
+    mkfs.exfat
+endif
 
 # Openssh
 PRODUCT_PACKAGES += \
@@ -328,7 +341,14 @@ ifndef CM_PLATFORM_SDK_VERSION
   # the SDK are released.  It should only be incremented when the APIs for
   # the new release are frozen (so that developers don't write apps against
   # intermediate builds).
-  CM_PLATFORM_SDK_VERSION := 2
+  CM_PLATFORM_SDK_VERSION := 3
+endif
+
+ifndef CM_PLATFORM_REV
+  # For internal SDK revisions that are hotfixed/patched
+  # Reset after each CM_PLATFORM_SDK_VERSION release
+  # If you are doing a release and this is NOT 0, you are almost certainly doing it wrong
+  CM_PLATFORM_REV := 0
 endif
 
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -337,6 +357,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # CyanogenMod Platform SDK Version
 PRODUCT_PROPERTY_OVERRIDES += \
   ro.cm.build.version.plat.sdk=$(CM_PLATFORM_SDK_VERSION)
+
+# CyanogenMod Platform Internal
+PRODUCT_PROPERTY_OVERRIDES += \
+  ro.cm.build.version.plat.rev=$(CM_PLATFORM_REV)
 
 -include $(WORKSPACE)/build_env/image-auto-bits.mk
 
